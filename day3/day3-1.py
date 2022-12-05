@@ -2,9 +2,6 @@ rucksack_file = open('./input.txt', 'r')
 rucksack_contents = rucksack_file.readlines()
 rucksack_file.close()
 
-# Lowercase item types a through z have priorities 1 through 26.
-# Uppercase item types A through Z have priorities 27 through 52.
-
 priorities = {}
 priority = 1
 for char in range(ord('a'), ord('z') + 1):
