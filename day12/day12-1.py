@@ -1,7 +1,7 @@
 from dijkstar import Graph, find_path
 
 def read_input():
-    map_file = open('./input.txt', 'r')
+    map_file = open('./test-input.txt', 'r')
     map_lines = map_file.readlines()
     map_lines = [map_line.strip() for map_line in map_lines]
     map_file.close()
@@ -32,7 +32,8 @@ def create_graph(map_lines):
                     print(source_node_index)
 
                 cost = getCostDifference(source_elevation, destination_elevation)
-                graph.add_edge(source_node_index, destination_node_index, cost)
+                if cost <= 100:
+                    graph.add_edge(source_node_index, destination_node_index, cost)
 
             if map_col_index > 0:
                 # left to right
@@ -41,8 +42,9 @@ def create_graph(map_lines):
                 source_elevation = map_lines[map_row_index][map_col_index]
                 destination_elevation = map_lines[map_row_index][map_col_index - 1]
                 cost = getCostDifference(source_elevation, destination_elevation)
-                graph.add_edge(source_node_index, destination_node_index, cost)
-            
+                if cost <= 100:                  
+                    graph.add_edge(source_node_index, destination_node_index, cost)
+
             if map_row_index < len(map_lines) - 1:
                 # top to bottom
                 source_node_index = calculate_node_index(map_row_index, map_col_index)
@@ -50,7 +52,8 @@ def create_graph(map_lines):
                 source_elevation = map_lines[map_row_index][map_col_index]
                 destination_elevation = map_lines[map_row_index + 1][map_col_index]
                 cost = getCostDifference(source_elevation, destination_elevation)
-                graph.add_edge(source_node_index, destination_node_index, cost)
+                if cost <= 100:
+                    graph.add_edge(source_node_index, destination_node_index, cost)
 
             if map_row_index > 0:
                 # bottom to top
@@ -59,7 +62,8 @@ def create_graph(map_lines):
                 source_elevation = map_lines[map_row_index][map_col_index]
                 destination_elevation = map_lines[map_row_index - 1][map_col_index]
                 cost = getCostDifference(source_elevation, destination_elevation)
-                graph.add_edge(source_node_index, destination_node_index, cost)
+                if cost <= 100: 
+                    graph.add_edge(source_node_index, destination_node_index, cost)
 
     return graph
 
@@ -68,7 +72,7 @@ def getCostDifference(source_elevation, destination_elevation):
     destination_cost = getCost(destination_elevation)
     elevation_delta = destination_cost - getCost(source_elevation)
     if elevation_delta > 1:
-        return elevation_delta * 100
+        return elevation_delta + 100
     else:
         return elevation_delta
 
@@ -84,7 +88,7 @@ def getCost(elevation):
 def main():
     map_lines = read_input()
     graph = create_graph(map_lines)
-    shortest_path = find_path(graph, 20000, 20136)
+    shortest_path = find_path(graph, 0, 2005)
     print(shortest_path)
     print("steps: " + str(len(shortest_path.nodes) - 3))
 
