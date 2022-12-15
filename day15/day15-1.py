@@ -1,18 +1,3 @@
-# Sensor at x=2, y=18: closest beacon is at x=-2, y=15
-# Sensor at x=9, y=16: closest beacon is at x=10, y=16
-# Sensor at x=13, y=2: closest beacon is at x=15, y=3
-# Sensor at x=12, y=14: closest beacon is at x=10, y=16
-# Sensor at x=10, y=20: closest beacon is at x=10, y=16
-# Sensor at x=14, y=17: closest beacon is at x=10, y=16
-# Sensor at x=8, y=7: closest beacon is at x=2, y=10
-# Sensor at x=2, y=0: closest beacon is at x=2, y=10
-# Sensor at x=0, y=11: closest beacon is at x=2, y=10
-# Sensor at x=20, y=14: closest beacon is at x=25, y=17
-# Sensor at x=17, y=20: closest beacon is at x=21, y=22
-# Sensor at x=16, y=7: closest beacon is at x=15, y=3
-# Sensor at x=14, y=3: closest beacon is at x=15, y=3
-# Sensor at x=20, y=1: closest beacon is at x=15, y=3
-
 def read_input():
     sensors_file = open('./test-input.txt', 'r')
     sensors = sensors_file.readlines()
@@ -43,8 +28,8 @@ def parse_sensors(sensors_beacons):
 def get_matrix_size(sensors_beacons):
     max_x = 0
     max_y = 0
-    min_x = 10000
-    min_y = 10000
+    min_x = 100000000
+    min_y = 100000000
     for sensor, beacon, _ in sensors_beacons:
         if sensor[0] > max_x:
             max_x = sensor[0]
@@ -66,13 +51,13 @@ def get_matrix_size(sensors_beacons):
     real_max_x = 0 - min_x + max_x
     real_max_y = 0 - min_y + max_y
 
-    return real_max_x, real_max_y
+    return real_max_x, real_max_y, abs(min_x)
 
 
-def fill_matrix_with_sensors_and_beacons(matrix, sensors_beacons):
+def fill_matrix_with_sensors_and_beacons(matrix, sensors_beacons, x_shift, y_shift):
     for sensor, beacon, _ in sensors_beacons:
-        matrix[sensor[1]][sensor[0] + 2] = 'S'
-        matrix[beacon[1]][beacon[0] + 2] = 'B'
+        matrix[sensor[1]+ y_shift][sensor[0] + x_shift] = 'S'
+        matrix[beacon[1]+ y_shift][beacon[0] + x_shift] = 'B'
 
     return matrix
 
@@ -92,14 +77,45 @@ def print_matrix(matrix):
         print(''.join(row))
 
 
+def draw_sensor_range(sensors_and_beacons, matrix, x_shift, y_shift):
+    sensor_index = 1
+    for sensor, beacon, manhattan in sensors_and_beacons:
+        print(sensor_index)
+        sensor_index += 1
+        for y in range(sensor[1] - manhattan, sensor[1] + manhattan + 1):
+            distance = abs(y - sensor[1])
+            for x in range(sensor[0] + 2 - manhattan + distance, sensor[0] + x_shift + 1):
+                if x >= 0 and y >= 0 and x < len(matrix[0]) and y < len(matrix):
+                    if matrix[y][x] == '.':
+                        matrix[y][x] = '#'
+
+            for x in range(sensor[0] + x_shift, sensor[0] + x_shift + 1 + manhattan - distance):
+                if x >= 0 and y >= 0 and x < len(matrix[0]) and y < len(matrix):
+                    if matrix[y][x] == '.':
+                        matrix[y][x] = '#'
+
+
+def count_row(row, matrix):
+    not_available = 0
+    for x in range(len(matrix[row])):
+        if matrix[row][x] == '#':
+            not_available += 1
+
+    return not_available
+
+
 def main():
     sensors = read_input()
     sensors_beacons = parse_sensors(sensors)
+    print(sensors_beacons)
     matrix_size = get_matrix_size(sensors_beacons)
+    print(matrix_size)
     matrix = create_empty_matrix(matrix_size)
-    matrix_with_sensors_and_beacons = fill_matrix_with_sensors_and_beacons(matrix, sensors_beacons)
+    matrix_with_sensors_and_beacons = fill_matrix_with_sensors_and_beacons(matrix, sensors_beacons, matrix_size[2], 0)
+    draw_sensor_range(sensors_beacons, matrix_with_sensors_and_beacons, matrix_size[2], 0)
     print_matrix(matrix_with_sensors_and_beacons)
-
+    not_available = count_row(10, matrix_with_sensors_and_beacons)
+    print(not_available)
 
 if __name__ == "__main__":
     main()
